@@ -27,16 +27,19 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://
   .map((s) => s.trim())
   .filter(Boolean);
 
-const corsOptions = {
-  origin: (origin, cb) => {
-    // Allow same-origin / server-to-server (no origin header) and listed origins.
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-      return cb(null, true);
-    }
-    return cb(new Error(`Origin ${origin} not allowed by CORS`));
-  },
-  credentials: true,
-};
+// In production single-service deploys, the frontend lives at the same origin as
+// the API, so we reflect the request origin. In dev we enforce the allowlist.
+const corsOptions = isProd
+  ? { origin: true, credentials: true }
+  : {
+      origin: (origin, cb) => {
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+          return cb(null, true);
+        }
+        return cb(new Error(`Origin ${origin} not allowed by CORS`));
+      },
+      credentials: true,
+    };
 
 const app = express();
 const httpServer = createServer(app);
