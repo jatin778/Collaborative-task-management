@@ -50,12 +50,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan(isProd ? 'combined' : 'dev'));
 
-console.log('[startup] MONGO_URI present:', !!process.env.MONGO_URI, '(length:', process.env.MONGO_URI?.length ?? 0, ')');
-console.log('[startup] NODE_ENV:', process.env.NODE_ENV);
-console.log('[startup] JWT_SECRET present:', !!process.env.JWT_SECRET);
-
 if (!process.env.MONGO_URI) {
-  console.error('FATAL: MONGO_URI is not set. Did you configure environment variables on Railway?');
+  console.error('FATAL: MONGO_URI is not set');
+  process.exit(1);
 }
 
 mongoose
